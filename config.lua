@@ -22,8 +22,8 @@ gameProtocolPort = 7172
 statusProtocolPort = 7171
 maxPlayers = 0
 motd = "Welcome to The Forgotten Server!"
-onePlayerOnlinePerAccount = true
-allowClones = false
+onePlayerOnlinePerAccount = false
+allowClones = true --Not used anymore but don't remove it yet
 serverName = "Forgotten"
 statusTimeout = 5000
 replaceKickOnLogin = true
@@ -64,7 +64,7 @@ mysqlPort = 3306
 mysqlSock = ""
 
 -- Misc.
-allowChangeOutfit = true
+allowChangeOutfit = false
 freePremium = false
 kickIdlePlayerAfterMinutes = 15
 maxMessageBuffer = 4
