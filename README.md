@@ -13,7 +13,7 @@ You can use the same tutorials as in otland/forgottenserver but use this repo in
 ### Support & issues
 
 Help for forgottenserver:
-If you need help, please visit the [support forum on OTLand](https://otland.net/forums/support.16/). Our issue tracker is not a support forum, and using it as one will result in your issue being closed. If you were unable to get assistance in the support forum, you should consider [becoming a premium user on OTLand](https://otland.net/account/upgrades) which grants you access to the premium support forum and supports OTLand financially.
+* If you need help, please visit the [support forum on OTLand](https://otland.net/forums/support.16/). Our issue tracker is not a support forum, and using it as one will result in your issue being closed. If you were unable to get assistance in the support forum, you should consider [becoming a premium user on OTLand](https://otland.net/account/upgrades) which grants you access to the premium support forum and supports OTLand financially.
 
-Issues with this project post here in github or wait a forum topic that i'll create
+* Issues with this project post here in github or wait a forum topic that i'll create
 
