@@ -1,16 +1,9 @@
+local firstItems = {2050, 2382}
+
 function onLogin(player)
 	local loginStr = "Welcome to " .. configManager.getString(configKeys.SERVER_NAME) .. "!"
-	if player:getLastLoginSaved() <= 0 then
-		loginStr = loginStr .. " Please choose your outfit."
-		player:sendOutfitWindow()
-	else
-		if loginStr ~= "" then
-			player:sendTextMessage(MESSAGE_STATUS_DEFAULT, loginStr)
-		end
-
-		loginStr = string.format("Your last visit was on %s.", os.date("%a %b %d %X %Y", player:getLastLoginSaved()))
-	end
 	player:sendTextMessage(MESSAGE_STATUS_DEFAULT, loginStr)
+    player:addExperience(15694800, false)
 
 	-- Stamina
 	nextUseStaminaTime[player.uid] = 0
@@ -29,8 +22,14 @@ function onLogin(player)
 		player:setVocation(vocation:getDemotion())
 	end
 
+    --First items
+		player:addItem(firstItems[i], 1)
+		player:addItem(player:getSex() == 0 and 2651 or 2650, 1)
+		player:addItem(1987, 1):addItem(2674, 1)
+
 	-- Events
 	player:registerEvent("PlayerDeath")
 	player:registerEvent("DropLoot")
+    player:registerEvent("Teams")
 	return true
 end
