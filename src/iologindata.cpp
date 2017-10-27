@@ -127,9 +127,8 @@ bool IOLoginData::loginserverAuthentication(const std::string& name, const std::
 	if (result) {
 		do {
 			if (result->getNumber<uint64_t>("deletion") == 0) {
-                    account.characters.push_back(result->getString("name"));          
-                    account.vocation_name.push_back(result->getString("vocation_name"));     
-				
+                    account.vocation_name.push_back(result->getString("vocation_name"));
+                    account.characters.push_back(result->getString("name"));
 			}
 		} while (result->next());
 		std::sort(account.characters.begin(), account.characters.end());
@@ -167,7 +166,8 @@ uint32_t IOLoginData::gameworldAuthentication(const std::string& accountName, co
 	uint32_t accountId = result->getNumber<uint32_t>("id");
 
 	query.str(std::string());
-	query << "SELECT `account_id`, `name`, `deletion` FROM `players` WHERE `name` = " << db.escapeString(characterName);
+    std::string newcharname = db.escapeString(characterName).substr(0, db.escapeString(characterName).find(" (", 0));
+    query << "SELECT `account_id`, `name`, `deletion`, `vocation_name` FROM `players` WHERE `name` = " << newcharname + "'";
 	result = db.storeQuery(query.str());
 	if (!result) {
 		return 0;
