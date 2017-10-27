@@ -1,5 +1,5 @@
 # RedBlue TeamWar  
-for forgottenserver
+###for forgottenserver
 ===============
 
 This is a modification for *The Forgotten Server* to make a team war MMORPG server emulator  
