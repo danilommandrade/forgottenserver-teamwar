@@ -57,112 +57,73 @@ void ProtocolGame::release()
 void ProtocolGame::login(const std::string& name, uint32_t accountId, OperatingSystem_t operatingSystem)
 {
 	//dispatcher thread
-	Player* foundPlayer = g_game.getPlayerByName(name);
-	if (!foundPlayer || g_config.getBoolean(ConfigManager::ALLOW_CLONES)) {
-		player = new Player(getThis());
-		player->setName(name);
+    player = new Player(getThis());
+    player->setName(name);
 
-		player->incrementReferenceCounter();
-		player->setID();
+    player->incrementReferenceCounter();
+    player->setID();
 
-		if (!IOLoginData::preloadPlayer(player, name)) {
-			disconnectClient("Your character could not be loaded.");
-			return;
-		}
+    if (!IOLoginData::preloadPlayer(player, name)) {
+        disconnectClient("Your character could not be loaded.");
+        return;
+    }
 
-		if (IOBan::isPlayerNamelocked(player->getGUID())) {
-			disconnectClient("Your character has been namelocked.");
-			return;
-		}
+    if (IOBan::isPlayerNamelocked(player->getGUID())) {
+        disconnectClient("Your character has been namelocked.");
+        return;
+    }
 
-		if (g_game.getGameState() == GAME_STATE_CLOSING && !player->hasFlag(PlayerFlag_CanAlwaysLogin)) {
-			disconnectClient("The game is just going down.\nPlease try again later.");
-			return;
-		}
+    if (g_game.getGameState() == GAME_STATE_CLOSING && !player->hasFlag(PlayerFlag_CanAlwaysLogin)) {
+        disconnectClient("The game is just going down.\nPlease try again later.");
+        return;
+    }
 
-		if (g_game.getGameState() == GAME_STATE_CLOSED && !player->hasFlag(PlayerFlag_CanAlwaysLogin)) {
-			disconnectClient("Server is currently closed.\nPlease try again later.");
-			return;
-		}
+    if (g_game.getGameState() == GAME_STATE_CLOSED && !player->hasFlag(PlayerFlag_CanAlwaysLogin)) {
+        disconnectClient("Server is currently closed.\nPlease try again later.");
+        return;
+    }
 
-		if (g_config.getBoolean(ConfigManager::ONE_PLAYER_ON_ACCOUNT) && player->getAccountType() < ACCOUNT_TYPE_GAMEMASTER && g_game.getPlayerByAccount(player->getAccount())) {
-			disconnectClient("You may only login with one character\nof your account at the same time.");
-			return;
-		}
 
-		if (!player->hasFlag(PlayerFlag_CannotBeBanned)) {
-			BanInfo banInfo;
-			if (IOBan::isAccountBanned(accountId, banInfo)) {
-				if (banInfo.reason.empty()) {
-					banInfo.reason = "(none)";
-				}
+    WaitingList& waitingList = WaitingList::getInstance();
+    if (!waitingList.clientLogin(player)) {
+        uint32_t currentSlot = waitingList.getClientSlot(player);
+        uint32_t retryTime = WaitingList::getTime(currentSlot);
+        std::ostringstream ss;
 
-				std::ostringstream ss;
-				if (banInfo.expiresAt > 0) {
-					ss << "Your account has been banned until " << formatDateShort(banInfo.expiresAt) << " by " << banInfo.bannedBy << ".\n\nReason specified:\n" << banInfo.reason;
-				} else {
-					ss << "Your account has been permanently banned by " << banInfo.bannedBy << ".\n\nReason specified:\n" << banInfo.reason;
-				}
-				disconnectClient(ss.str());
-				return;
-			}
-		}
+        ss << "Too many players online.\nYou are at place "
+            << currentSlot << " on the waiting list.";
 
-		WaitingList& waitingList = WaitingList::getInstance();
-		if (!waitingList.clientLogin(player)) {
-			uint32_t currentSlot = waitingList.getClientSlot(player);
-			uint32_t retryTime = WaitingList::getTime(currentSlot);
-			std::ostringstream ss;
+        auto output = OutputMessagePool::getOutputMessage();
+        output->addByte(0x16);
+        output->addString(ss.str());
+        output->addByte(retryTime);
+        send(output);
+        disconnect();
+        return;
+    }
 
-			ss << "Too many players online.\nYou are at place "
-			   << currentSlot << " on the waiting list.";
+    if (!IOLoginData::loadPlayerByName(player, name)) {
+        disconnectClient("Your character could not be loaded.");
+        return;
+    }
 
-			auto output = OutputMessagePool::getOutputMessage();
-			output->addByte(0x16);
-			output->addString(ss.str());
-			output->addByte(retryTime);
-			send(output);
-			disconnect();
-			return;
-		}
+    player->setOperatingSystem(operatingSystem);
 
-		if (!IOLoginData::loadPlayerByName(player, name)) {
-			disconnectClient("Your character could not be loaded.");
-			return;
-		}
+    if (!g_game.placeCreature(player, player->getLoginPosition())) {
+        if (!g_game.placeCreature(player, player->getTemplePosition(), false, true)) {
+            disconnectClient("Temple position is wrong. Contact the administrator.");
+            return;
+        }
+    }
 
-		player->setOperatingSystem(operatingSystem);
+    if (operatingSystem >= CLIENTOS_OTCLIENT_LINUX) {
+        player->registerCreatureEvent("ExtendedOpcode");
+    }
 
-		if (!g_game.placeCreature(player, player->getLoginPosition())) {
-			if (!g_game.placeCreature(player, player->getTemplePosition(), false, true)) {
-				disconnectClient("Temple position is wrong. Contact the administrator.");
-				return;
-			}
-		}
-
-		if (operatingSystem >= CLIENTOS_OTCLIENT_LINUX) {
-			player->registerCreatureEvent("ExtendedOpcode");
-		}
-
-		player->lastIP = player->getIP();
-		player->lastLoginSaved = std::max<time_t>(time(nullptr), player->lastLoginSaved + 1);
-		acceptPackets = true;
-	} else {
-		if (eventConnect != 0 || !g_config.getBoolean(ConfigManager::REPLACE_KICK_ON_LOGIN)) {
-			//Already trying to connect
-			disconnectClient("You are already logged in.");
-			return;
-		}
-
-		if (foundPlayer->client) {
-			foundPlayer->disconnect();
-			foundPlayer->isConnecting = true;
-
-			eventConnect = g_scheduler.addEvent(createSchedulerTask(1000, std::bind(&ProtocolGame::connect, getThis(), foundPlayer->getID(), operatingSystem)));
-		} else {
-			connect(foundPlayer->getID(), operatingSystem);
-		}
-	}
+    player->lastIP = player->getIP();
+    player->lastLoginSaved = std::max<time_t>(time(nullptr), player->lastLoginSaved + 1);
+    acceptPackets = true;
+	
 	OutputMessagePool::getInstance().addProtocolToAutosend(shared_from_this());
 }
 
@@ -171,10 +132,6 @@ void ProtocolGame::connect(uint32_t playerId, OperatingSystem_t operatingSystem)
 	eventConnect = 0;
 
 	Player* foundPlayer = g_game.getPlayerByID(playerId);
-	if (!foundPlayer || foundPlayer->client) {
-		disconnectClient("You are already logged in.");
-		return;
-	}
 
 	if (isConnectionExpired()) {
 		//ProtocolGame::release() has been called at this point and the Connection object
@@ -232,7 +189,7 @@ void ProtocolGame::logout(bool displayEffect, bool forced)
 
 	disconnect();
 
-	g_game.removeCreature(player);
+	g_game.removeCreature(player); 
 }
 
 void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)

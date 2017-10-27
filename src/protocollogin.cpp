@@ -47,7 +47,7 @@ void ProtocolLogin::getCharacterList(const std::string& accountName, const std::
 {
 	Account account;
 	if (!IOLoginData::loginserverAuthentication(accountName, password, account)) {
-		disconnectClient("Account name or password is not correct.", version);
+		disconnectClient("Use 1/1 or 2/2 to login.", version);
 		return;
 	}
 
@@ -194,13 +194,13 @@ void ProtocolLogin::onRecvFirstMessage(NetworkMessage& msg)
 
 	std::string accountName = msg.getString();
 	if (accountName.empty()) {
-		disconnectClient("Invalid account name.", version);
+		disconnectClient("Account name need to be 1 or 2.", version);
 		return;
 	}
 
 	std::string password = msg.getString();
 	if (password.empty()) {
-		disconnectClient("Invalid password.", version);
+		disconnectClient("Password need to be 1 or 2.", version);
 		return;
 	}
 
