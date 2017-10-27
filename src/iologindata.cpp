@@ -44,7 +44,25 @@ Account IOLoginData::loadAccount(uint32_t accno)
 	account.lastDay = result->getNumber<time_t>("lastday");
 	return account;
 }
+/*
+Account IOLoginData::onlineRed()
+{
 
+	std::ostringstream query;
+	query << "SELECT `player_id` FROM `playersOnline` WHERE `player_id` IN (SELECT player_id FROM guild_membership WHERE guild_id = 1);
+	DBResult_ptr result = Database::getInstance().storeQuery(query.str());
+	if (!result) {
+		return account;
+	}
+
+	account.id = result->getNumber<uint32_t>("id");
+	account.name = result->getString("name");
+	account.accountType = static_cast<AccountType_t>(result->getNumber<int32_t>("type"));
+	account.premiumDays = result->getNumber<uint16_t>("premdays");
+	account.lastDay = result->getNumber<time_t>("lastday");
+	return account;
+}
+*/
 bool IOLoginData::saveAccount(const Account& acc)
 {
 	std::ostringstream query;
@@ -104,12 +122,14 @@ bool IOLoginData::loginserverAuthentication(const std::string& name, const std::
 	account.lastDay = result->getNumber<time_t>("lastday");
 
 	query.str(std::string());
-	query << "SELECT `name`, `deletion` FROM `players` WHERE `account_id` = " << account.id;
+	query << "SELECT `name`, `deletion`, `vocation_name`  FROM `players` WHERE `account_id` = " << account.id;
 	result = db.storeQuery(query.str());
 	if (result) {
 		do {
 			if (result->getNumber<uint64_t>("deletion") == 0) {
-				account.characters.push_back(result->getString("name"));
+                    account.characters.push_back(result->getString("name"));          
+                    account.vocation_name.push_back(result->getString("vocation_name"));     
+				
 			}
 		} while (result->next());
 		std::sort(account.characters.begin(), account.characters.end());
@@ -248,8 +268,9 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 	Account acc = loadAccount(accno);
 
 	player->setGUID(result->getNumber<uint32_t>("id"));
-	player->name = result->getString("name");
+	player->name = result->getString("name");   
 	player->accountNumber = accno;
+    
 
 	player->accountType = acc.accountType;
 

@@ -25,6 +25,7 @@
 struct Account {
 	std::vector<std::string> characters;
 	std::string name;
+    std::vector<std::string> vocation_name;
 	std::string key;
 	time_t lastDay = 0;
 	uint32_t id = 0;

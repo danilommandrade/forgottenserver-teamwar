@@ -98,7 +98,7 @@ void ProtocolLogin::getCharacterList(const std::string& accountName, const std::
 	output->addByte(size);
 	for (uint8_t i = 0; i < size; i++) {
 		output->addByte(0);
-		output->addString(account.characters[i]);
+		output->addString(account.characters[i] + " ( " + account.vocation_name[i] + " )");
 	}
 
 	//Add premium days
