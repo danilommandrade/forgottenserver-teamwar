@@ -10,7 +10,7 @@ The Forgotten Server is a free and open-source MMORPG server emulator written in
 ### Getting Started
 
 You can use the same tutorials as in otland/forgottenserver but use this repo instead(psychonaut04/forgottenserver-teamwar)
-* [Compiling](https://github.com/otland/forgottenserver/wiki/Compiling), alternatively download [AppVeyor builds for Windows](https://ci.appveyor.com/project/kornholi/forgottenserver)
+* [Compiling](https://github.com/otland/forgottenserver/wiki/Compiling)
 * [Scripting Reference](https://github.com/otland/forgottenserver/wiki/Script-Interface)
 
 ### Support & issues
