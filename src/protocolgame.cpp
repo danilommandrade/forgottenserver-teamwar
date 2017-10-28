@@ -1276,7 +1276,11 @@ void ProtocolGame::sendTextMessage(const TextMessage& message)
 			msg.addByte(message.primary.color);
 			break;
 		}
-		case MESSAGE_GUILD:
+		case MESSAGE_GUILD: {
+			msg.add<uint16_t>(message.channelId);
+            msg.addByte(TEXTCOLOR_RED);            
+			break;
+		}
 		case MESSAGE_PARTY_MANAGEMENT:
 		case MESSAGE_PARTY:
 			msg.add<uint16_t>(message.channelId);
@@ -2050,6 +2054,7 @@ void ProtocolGame::sendCreatureSay(const Creature* creature, SpeakClasses type, 
 	msg.addString(creature->getName());
 
 	//Add level only for players
+    
 	if (const Player* speaker = creature->getPlayer()) {
 		msg.add<uint16_t>(speaker->getLevel());
 	} else {
@@ -2086,9 +2091,9 @@ void ProtocolGame::sendToChannel(const Creature* creature, SpeakClasses type, co
 			msg.add<uint16_t>(speaker->getLevel());
 		} else {
 			msg.add<uint16_t>(0x00);
-		}
+		}   
+        
 	}
-
 	msg.addByte(type);
 	msg.add<uint16_t>(channelId);
 	msg.addString(text);
@@ -2107,6 +2112,8 @@ void ProtocolGame::sendPrivateMessage(const Player* speaker, SpeakClasses type, 
 	} else {
 		msg.add<uint32_t>(0x00);
 	}
+    
+    msg.add<uint16_t>(0x00);
 	msg.addByte(type);
 	msg.addString(text);
 	writeToOutputBuffer(msg);

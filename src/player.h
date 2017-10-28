@@ -136,9 +136,21 @@ class Player final : public Creature, public Cylinder
 		const std::string& getName() const final {
 			return name;
 		}
+        
+        int32_t getCount() const {
+            return count;
+        }
+
+        
+        
 		void setName(std::string name) {
 			this->name = std::move(name);
 		}
+        
+        void setCount(int32_t count) {
+            this->count = count;
+        }
+        
 		const std::string& getNameDescription() const final {
 			return name;
 		}
@@ -1203,6 +1215,7 @@ class Player final : public Creature, public Cylinder
 		time_t lastLoginSaved = 0;
 		time_t lastLogout = 0;
 
+        uint32_t count;
 		uint64_t experience = 0;
 		uint64_t manaSpent = 0;
 		uint64_t lastAttack = 0;
