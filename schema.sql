@@ -240,6 +240,13 @@ CREATE TABLE `players_online` (
   `player_id` int(11) NOT NULL
 ) ENGINE=MEMORY DEFAULT CHARSET=latin1;
 
+CREATE TABLE `real_online` (
+  `id` int(11) NOT NULL,
+  `custom_name` varchar(40) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `real_online`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 CREATE TABLE `player_deaths` (
   `player_id` int(11) NOT NULL,
   `time` bigint(20) UNSIGNED NOT NULL DEFAULT '0',
@@ -419,6 +426,9 @@ ALTER TABLE `server_config`
 
 ALTER TABLE `tile_store`
   ADD KEY `house_id` (`house_id`);
+	
+ALTER TABLE `real_online`
+  ADD PRIMARY KEY (`id`);
 
 
 ALTER TABLE `accounts`
@@ -511,3 +521,4 @@ ALTER TABLE `player_storage`
 
 ALTER TABLE `tile_store`
   ADD CONSTRAINT `tile_store_ibfk_1` FOREIGN KEY (`house_id`) REFERENCES `houses` (`id`) ON DELETE CASCADE;
+
