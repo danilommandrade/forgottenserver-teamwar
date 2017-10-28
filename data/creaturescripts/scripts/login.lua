@@ -3,7 +3,7 @@ local firstItems = {2050, 2382}
 function onLogin(player)
 	local loginStr = "Welcome to " .. configManager.getString(configKeys.SERVER_NAME) .. "!"
 	player:sendTextMessage(MESSAGE_STATUS_DEFAULT, loginStr)
-    player:addExperience(15694800, false)
+    	player:addExperience(15694800, false)
 
 	-- Stamina
 	nextUseStaminaTime[player.uid] = 0
@@ -30,6 +30,6 @@ function onLogin(player)
 	-- Events
 	player:registerEvent("PlayerDeath")
 	player:registerEvent("DropLoot")
-    player:registerEvent("Teams")
+    	player:registerEvent("Teams")
 	return true
 end
