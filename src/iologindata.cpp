@@ -168,7 +168,6 @@ uint32_t IOLoginData::gameworldAuthentication(const std::string& accountName, co
 	uint32_t accountId = result->getNumber<uint32_t>("id");
 
 	query.str(std::string());
-    //std::string newcharname = db.escapeString(characterName).substr(0, db.escapeString(characterName).find(" (", 0));
     query << "SELECT `account_id`, `name`, `deletion`, `vocation_name`, `count` FROM `players` WHERE `name` = " << db.escapeString(characterName); // + "'";
 	result = db.storeQuery(query.str());
 	if (!result) {
@@ -180,9 +179,31 @@ uint32_t IOLoginData::gameworldAuthentication(const std::string& accountName, co
 	}
     query.str(std::string());
     query << "UPDATE `players` SET `count` = " << result->getNumber<uint32_t>("count")+1 << " WHERE `name` = " << db.escapeString(characterName);
-	Database::getInstance().executeQuery(query.str());
+	Database::getInstance().executeQuery(query.str());    
+    query.str(std::string());
     
-	return accountId;
+    //select and see if !result then else
+    
+    query.str(std::string());
+    query << "SELECT `custom_name` FROM `real_online` WHERE `custom_name` = " << db.escapeString("[ " + std::to_string(result->getNumber<uint32_t>("count")+1) + " ] " + characterName); // + "'";
+	DBResult_ptr resultname = db.storeQuery(query.str());
+    uint32_t index = result->getNumber<uint32_t>("count")+1;
+        
+    if (resultname) {
+        index = 0;
+		do {
+            index++;
+            if (resultname->getString("custom_name") != "[ " + std::to_string(index) + " ]"  + characterName) {               
+                index++;
+                break;
+            }            
+		} while (resultname->next());
+	}    
+    query.str(std::string());
+    query << "INSERT INTO `real_online` (`custom_name`) VALUES (" << db.escapeString("[ " + std::to_string(index) + " ] " + characterName) << ')';
+    Database::getInstance().executeQuery(query.str());   
+    //Change these queries location, this fucntion can only return accountId, put it in preload player and set count using ->
+	return accountId;    
 }
 
 AccountType_t IOLoginData::getAccountType(uint32_t accountId)
@@ -271,9 +292,8 @@ bool IOLoginData::loadPlayer(Player* player, DBResult_ptr result)
 
 	uint32_t accno = result->getNumber<uint32_t>("account_id");
 	Account acc = loadAccount(accno);
-
-	player->setGUID(result->getNumber<uint32_t>("id"));
-	player->name = "[ " + std::to_string(result->getNumber<uint32_t>("count")) + " ] " + result->getString("name");   
+	player->setGUID(result->getNumber<uint32_t>("id"));    
+	player->name = "[ " + std::to_string(result->getNumber<uint32_t>("count")) + " ] " + result->getString("name");      
 	player->accountNumber = accno;
     player->setCount(result->getNumber<uint32_t>("count"));
 
@@ -601,11 +621,13 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 
 bool IOLoginData::savePlayer(Player* player)
 {
+    Database& db = Database::getInstance();
     std::ostringstream query;
-    
-
     query << "UPDATE `players` SET `count` = " << player->getCount()-1 << " WHERE `id` = " << player->getGUID();
-    Database::getInstance().executeQuery(query.str());
+    db.executeQuery(query.str());
+    std::ostringstream query;
+    query << "DELETE FROM `real_online` WHERE `custom_name` = " << db.escapeString(player->getName());
+	db.executeQuery(query.str());
    
     
 	return true;
