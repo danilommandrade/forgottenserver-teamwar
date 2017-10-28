@@ -5,8 +5,13 @@
 This is a modification for *The Forgotten Server* to make a team war MMORPG server emulator  
 The Forgotten Server is a free and open-source MMORPG server emulator written in C++. It is a fork of the [OpenTibia Server](https://github.com/opentibia/server) project. To connect to the server, you can use [OTClient](https://github.com/edubart/otclient).
 
-![alt text](https://i.imgur.com/HG4IV8o.png)
-
+![alt text](https://i.imgur.com/HG4IV8o.png)  
+  
+How count is working now:  
+![alt text](https://i.imgur.com/tDBK8nB.png)  
+  
+When it is going to "bug", the new player get the previous one count, avoiding bugs. 
+		
 ### Getting Started
 
 You can use the same tutorials as in otland/forgottenserver but use this repo instead(psychonaut04/forgottenserver-teamwar)
