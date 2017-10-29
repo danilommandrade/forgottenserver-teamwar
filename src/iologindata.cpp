@@ -630,16 +630,6 @@ bool IOLoginData::saveItems(const Player* player, const ItemBlockList& itemList,
 
 bool IOLoginData::savePlayer(Player* player)
 {
-    Database& db = Database::getInstance();
-    std::ostringstream query;
-    query.str(std::string());
-    query << "UPDATE `players` SET `count` = " << player->getCount()-1 << " WHERE `id` = " << player->getcharacterId();
-    db.executeQuery(query.str());
-    query.str(std::string());
-    query << "DELETE FROM `real_online` WHERE `custom_name` = " << db.escapeString(player->getName());
-	db.executeQuery(query.str());
-   
-    
 	return true;
 }
 
