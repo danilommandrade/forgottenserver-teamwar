@@ -2091,9 +2091,9 @@ void ProtocolGame::sendToChannel(const Creature* creature, SpeakClasses type, co
 			msg.add<uint16_t>(speaker->getLevel());
 		} else {
 			msg.add<uint16_t>(0x00);
-		}   
-        
+		}
 	}
+
 	msg.addByte(type);
 	msg.add<uint16_t>(channelId);
 	msg.addString(text);
@@ -2107,15 +2107,13 @@ void ProtocolGame::sendPrivateMessage(const Player* speaker, SpeakClasses type, 
 	static uint32_t statementId = 0;
 	msg.add<uint32_t>(++statementId);
 	if (speaker) {
-		msg.addString(speaker->getName());
+        msg.addString(speaker->getPlayer()->getName());
 		msg.add<uint16_t>(speaker->getLevel());
 	} else {
 		msg.add<uint32_t>(0x00);
 	}
-    
-    msg.add<uint16_t>(0x00);
 	msg.addByte(type);
-	msg.addString(text);
+	msg.addString(text);   
 	writeToOutputBuffer(msg);
 }
 

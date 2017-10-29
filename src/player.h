@@ -141,14 +141,21 @@ class Player final : public Creature, public Cylinder
             return count;
         }
 
-        
+        int32_t getcharacterId() const {
+            return characterId;
+        }
+
         
 		void setName(std::string name) {
 			this->name = std::move(name);
 		}
         
-        void setCount(int32_t count) {
-            this->count = count;
+        void setCount(int32_t count) {          
+          this->count = count;
+        }
+        
+        void setcharacterId(int32_t characterId) {
+            this->characterId = characterId;
         }
         
 		const std::string& getNameDescription() const final {
@@ -1216,6 +1223,7 @@ class Player final : public Creature, public Cylinder
 		time_t lastLogout = 0;
 
         uint32_t count;
+        uint32_t characterId;
 		uint64_t experience = 0;
 		uint64_t manaSpent = 0;
 		uint64_t lastAttack = 0;
